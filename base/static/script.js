@@ -1,70 +1,5 @@
 import { h, Component, render } from './preact-10.0.0.js';
 
-const PROGRAM_PLAN = {
-  'name': 'Basic 3-workout 5x5',
-  'workouts': [
-    {
-      name: 'Workout A',
-      exercises: [
-        {
-          name: 'Low bar squat',
-          weight: 225,
-          workSets: [5, 5, 5, 5, 5],
-        },
-        {
-          name: 'Bench press',
-          weight: 155,
-          workSets: [5, 5, 5, 5, 5],
-        },
-        {
-          name: 'Power clean',
-          weight: 85,
-          workSets: [3, 3, 3, 3, 3],
-        },
-      ]
-    },
-    {
-      name: 'Workout B',
-      exercises: [
-        {
-          name: 'Front squat',
-          weight: 45,
-          workSets: [5, 5, 5, 5, 5],
-        },
-        {
-          name: 'Skullcrusher',
-          weight: 45,
-          workSets: [10, 10, 10],
-        },
-        {
-          name: 'Pendlay row',
-          weight: 155,
-          workSets: [5, 5, 5, 5, 5],
-        },
-      ],
-    },
-    {
-      name: 'Workout C',
-      exercises: [
-        {
-          name: 'Deadlift',
-          weight: 225,
-          workSets: [5],
-        },
-        {
-          name: 'Overhead press',
-          weight: 90,
-          workSets: [5, 5, 5, 5, 5],
-        },
-        {
-          name: 'Pull up',
-          weight: 0,
-          workSets: [5, 5, 5, 5, 5],
-        }
-      ],
-    }
-  ],
-};
 
 class RepRecorder extends Component {
   state = {
@@ -215,7 +150,7 @@ class WorkoutPlanPickerButton extends Component {
 
 class WorkoutPlanPicker extends Component {
   render() {
-    let workouts = PROGRAM_PLAN.workouts.map(workout => h(
+    let workouts = this.props.program.workouts.map(workout => h(
       WorkoutPlanPickerButton,
       {
         onClick: this.props.onWorkoutPlanPicked,
@@ -236,11 +171,31 @@ class WorkoutPlanPicker extends Component {
 }
 
 class App extends Component {
-  state = {
-    workoutPlan: null,
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      program: null,
+      workoutPlan: null,
+    };
+
+    fetch('/api/program/').then(response => {
+      if(!response.ok) {
+        throw Error(response.statusText);
+      }
+
+      return response.json();
+    }).then(responseJson => {
+      this.setState({ program: responseJson });
+    });
   }
 
   render() {
+    if(this.state.program === null) {
+      return null;
+    }
+
     if(this.state.workoutPlan === null) {
       let handleWorkoutPlanPicked = workoutPlan => this.setState({
         workoutPlan: workoutPlan,
@@ -250,6 +205,7 @@ class App extends Component {
         WorkoutPlanPicker,
         {
           onWorkoutPlanPicked: handleWorkoutPlanPicked,
+          program: this.state.program,
         },
       );
     }
