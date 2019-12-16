@@ -1,6 +1,8 @@
 from django.views.generic.base import TemplateView
+from django.shortcuts import render
 
-class HomeView(TemplateView):
-    template_name = "home.html"
+from base import view_utils
 
-home = HomeView.as_view()
+@view_utils.require_auth
+def home(request):
+    return render(request, 'home.html')

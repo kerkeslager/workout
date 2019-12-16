@@ -1,0 +1,27 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+  {% if incorrect_username_or_password_error %}
+    <div class='error'>
+      <p>Incorrect username and/or password.</p>
+    </div>
+  {% endif %}
+
+  <form method='post' action='{% url "authorization:log_in" %}'>
+    {% csrf_token %}
+
+    {% if redirect %}
+      <input type='hidden' name='redirect' value='{{ redirect }}'></input>
+    {% endif %}
+
+    <label for='username'>Username</label>
+    <input type='text' name='username'></input>
+    <label for='password'>Password</label>
+    <input type='password' name='password'></input>
+    <input type='submit' value='Submit'></input>
+  </form>
+
+  <p>Don't have an account? <a href='{% url "authorization:create" %}'>Sign up</a></p>
+{% endblock %}

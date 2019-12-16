@@ -38,8 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'authorization',
     'base',
     'program',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +126,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+with open(os.path.join(BASE_DIR, 'base', 'eff_short_wordlist_1.txt'), 'r') as f:
+    PASSWORD_WORD_LIST = [line.split()[-1].strip() for line in f.readlines()]
