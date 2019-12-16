@@ -12,11 +12,11 @@ def program(request):
                 'name': workout.name,
                 'exercises': [
                     {
-                        'name': exercise.name,
-                        'weight': exercise.weight,
-                        'workSets': [ exercise.reps for ignore in range(exercise.sets) ],
+                        'name': workout_exercise.exercise.name,
+                        'weight': workout_exercise.weight,
+                        'workSets': [ workout_exercise.reps for ignore in range(workout_exercise.sets) ],
                     }
-                    for exercise in workout.exercise_set.all()
+                    for workout_exercise in workout.exercises.through.objects.filter(workout=workout)
                 ]
             }
             for workout in my_program.workout_set.all()

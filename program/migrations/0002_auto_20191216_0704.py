@@ -14,29 +14,44 @@ def create_data(apps, schema_editor):
     exercise = Exercise(
         workout=workout,
         name='Low bar squat',
-        weight=45,
-        sets=5,
-        reps=5,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 5,
+            'reps': 5,
+        },
+    )
 
     exercise = Exercise(
         workout=workout,
         name='Bench press',
-        weight=45,
-        sets=5,
-        reps=5,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 5,
+            'reps': 5,
+        },
+    )
 
     exercise = Exercise(
         workout=workout,
         name='Power clean',
-        weight=45,
-        sets=5,
-        reps=3,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 5,
+            'reps': 3,
+        },
+    )
 
     workout = Workout(program=program, name='Workout B')
     workout.save()
@@ -44,29 +59,44 @@ def create_data(apps, schema_editor):
     exercise = Exercise(
         workout=workout,
         name='Front squat',
-        weight=45,
-        sets=5,
-        reps=5,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 5,
+            'reps': 5,
+        },
+    )
 
     exercise = Exercise(
         workout=workout,
         name='Skullcrusher',
-        weight=45,
-        sets=5,
-        reps=5,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 5,
+            'reps': 5,
+        },
+    )
 
     exercise = Exercise(
         workout=workout,
         name='Pendlay row',
-        weight=45,
-        sets=5,
-        reps=5,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 5,
+            'reps': 5,
+        },
+    )
 
     workout = Workout(program=program, name='Workout C')
     workout.save()
@@ -74,29 +104,44 @@ def create_data(apps, schema_editor):
     exercise = Exercise(
         workout=workout,
         name='Deadlift',
-        weight=45,
-        sets=1,
-        reps=5,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 1,
+            'reps': 5,
+        },
+    )
 
     exercise = Exercise(
         workout=workout,
         name='Overhead press',
-        weight=45,
-        sets=5,
-        reps=5,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 5,
+            'reps': 5,
+        },
+    )
 
     exercise = Exercise(
         workout=workout,
         name='Pull up',
-        weight=45,
-        sets=5,
-        reps=5,
     )
     exercise.save()
+    workout.exercises.add(
+        exercise,
+        through_defaults={
+            'weight': 45,
+            'sets': 5,
+            'reps': 5,
+        },
+    )
 
 class Migration(migrations.Migration):
 
