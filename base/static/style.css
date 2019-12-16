@@ -1,0 +1,94 @@
+html {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: calc(100% - 3rem);
+  max-width: 30rem;
+  height: 100%;
+
+  font-size: 14pt;
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+.button {
+  border: 2px solid black;
+  width: min-content;
+  padding: 1rem;
+  font-size: 16pt;
+}
+
+.exercise {
+  display: grid;
+  grid-template-columns: calc(100% - 7rem) 5rem;
+  grid-column-gap: 2rem;
+  grid-row-gap: 1rem;
+  align-items: center;
+
+  margin-bottom: 2rem;
+}
+
+.exercise-name {
+  grid-column: 1;
+  grid-row: 1;
+
+  font-size: 18pt;
+  text-align: left;
+}
+
+.weight {
+  grid-column: 2;
+  grid-row: 1;
+
+  font-size: 16pt;
+  text-align: right;
+}
+
+.button.workout-plan-picker-button {
+  width: calc(100% - 3rem);
+  font-size: 12pt;
+  margin-top: 1rem;
+}
+
+.button.workout-plan-picker-button .workout-plan-name {
+  font-weight: bold;
+}
+
+.rep-recorder-list {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+
+  display: grid;
+  grid-template-columns: repeat(5, 2.5rem);
+  grid-gap: 1rem;
+}
+
+.rep-recorder {
+  border: 2px solid #000000;
+  height: 2.5rem;
+
+  font-size: 16pt;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rep-recorder.planned {
+  background: #cc0000;
+  color: white;
+}
+
+.rep-recorder.incomplete {
+  background: #eeee00;
+  color: black;
+}
+
+.rep-recorder.complete {
+  background: #00cc00;
+  color: white;
+}
