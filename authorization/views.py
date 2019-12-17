@@ -12,7 +12,7 @@ from base import view_utils
 
 def create(request):
     if request.method == 'GET':
-        return render(request, 'authorization/create.html')
+        return render(request, 'authorization/create_form.html')
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -39,7 +39,7 @@ def create(request):
         if User.objects.filter(username=username).first():
             return render(
                 request,
-                'authorization/create.html',
+                'authorization/create_form.html',
                 {
                     'uniqueness_error': True,
                 }
