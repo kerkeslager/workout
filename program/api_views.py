@@ -19,7 +19,7 @@ def program(request):
                     for workout_exercise in workout.exercises.through.objects.filter(workout=workout)
                 ]
             }
-            for workout in my_program.workout_set.all()
+            for workout in my_program.workouts.all()
         ],
     }
 

@@ -2,18 +2,14 @@ from django.contrib import admin
 
 from . import models
 
-class WorkoutExerciseInline(admin.TabularInline):
-    model = models.WorkoutExercise
+class ProgramExerciseInline(admin.TabularInline):
+    model = models.ProgramExercise
     extra = 0
 
-class WorkoutAdmin(admin.ModelAdmin):
-    inlines = [WorkoutExerciseInline]
-admin.site.register(models.Workout, WorkoutAdmin)
+class ProgramWorkoutAdmin(admin.ModelAdmin):
+    inlines = [ProgramExerciseInline]
+admin.site.register(models.ProgramWorkout, ProgramWorkoutAdmin)
 
 class ProgramAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.Program, ProgramAdmin)
-
-class ExerciseAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(models.Exercise, ExerciseAdmin)

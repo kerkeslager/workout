@@ -11,8 +11,9 @@
 
   <body>
     <header>
+      <a href='{% url "home" %}'>Home</a>
+
       {% if request.user.is_authenticated %}
-        Welcome {{ request.user.username }}
         / <a href='{% url "user:settings" %}'>Settings</a>
         / <a href='{% url "authorization:log_out" %}'>Logout</a>
       {% endif %}
