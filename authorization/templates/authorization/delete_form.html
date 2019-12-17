@@ -1,0 +1,25 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Delete{% endblock %}
+
+{% block content %}
+  {% if incorrect_password_error %}
+    <div class='error'>
+      <p>Your password was incorrect.</p>
+    </div>
+  {% endif %}
+
+  <div class='error'>
+    <p>
+      WARNING: You are about to delete your account.
+      All data associated with this account will be lost.
+    </p>
+  </div>
+
+  <form method='post' action='{% url "authorization:delete" %}'>
+    {% csrf_token %}
+    <label for='password'>Password</label>
+    <input type='password' name='password'></input>
+    <input type='submit' value='Submit'></input>
+  </form>
+{% endblock %}
