@@ -28,6 +28,7 @@ class WorkoutRecord(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='workout_records')
     complete = models.BooleanField(null=False, default=False)
+    program_workout = models.ForeignKey('program.ProgramWorkout', on_delete=models.PROTECT)
 
 class ExerciseRecord(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)

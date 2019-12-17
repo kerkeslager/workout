@@ -149,8 +149,28 @@ class WorkoutPlanPickerButton extends Component {
 }
 
 class WorkoutPlanPicker extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      programWorkouts: null
+    };
+
+    fetch('/api/program/workout/').then(response => {
+      if(!response.ok) {
+        throw Error(response.statusText);
+      }
+
+      return response.json();
+    }).then(responseJson => {
+      this.setState({ programWorkouts: responseJson.workouts });
+    });
+  }
+
   render() {
-    let workouts = this.props.program.workouts.map(workout => h(
+    if(this.state.programWorkouts === null) return '';
+
+    let workouts = this.state.programWorkouts.map(workout => h(
       WorkoutPlanPickerButton,
       {
         onClick: this.props.onWorkoutPlanPicked,
@@ -171,31 +191,16 @@ class WorkoutPlanPicker extends Component {
 }
 
 class App extends Component {
-
   constructor(props) {
     super(props);
 
     this.state = {
-      program: null,
       workoutPlan: null,
     };
 
-    fetch('/api/program/').then(response => {
-      if(!response.ok) {
-        throw Error(response.statusText);
-      }
-
-      return response.json();
-    }).then(responseJson => {
-      this.setState({ program: responseJson });
-    });
   }
 
   render() {
-    if(this.state.program === null) {
-      return null;
-    }
-
     if(this.state.workoutPlan === null) {
       let handleWorkoutPlanPicked = workoutPlan => this.setState({
         workoutPlan: workoutPlan,
