@@ -1,35 +1,69 @@
 import { h, Component, render } from './preact-10.0.0.js';
 
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
 class RepRecorder extends Component {
-  state = {
-    completed: null
+  constructor(props) {
+    super(props);
+    this.state = props.setRecord;
   }
 
   render() {
     let handleClick = e => {
-      if(this.state.completed === null) {
-        this.setState({ completed: this.props.planned });
-        return;
+      let completedReps = undefined;
+
+      if(this.state.completedReps === null) {
+        completedReps = this.state.plannedReps;
+      } else if(this.state.completedReps === 0) {
+        completedReps = null;
+      } else {
+        completedReps = this.state.completedReps - 1;
       }
 
-      if(this.state.completed === 0) {
-        this.setState({ completed: null });
-        return;
-      }
-
-      this.setState({ completed: this.state.completed - 1 });
+      fetch(
+        '/api/user/set-record/update/',
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          method: 'POST',
+          body: JSON.stringify({
+            setRecord: this.state.id,
+            completedReps: completedReps,
+          }),
+        },
+      ).then(response => {
+        if(!response.ok) throw Error(response.statusText);
+        return response.json();
+      }).then(responseJson => {
+        this.setState({ completedReps: completedReps });
+      });
     };
 
-    let display = this.state.completed === null
-      ? this.props.planned
-      : this.state.completed;
+    let display = this.state.completedReps === null
+      ? this.state.plannedReps
+      : this.state.completedReps;
 
     let className = 'rep-recorder ';
 
-    if(this.state.completed === null) {
+    if(this.state.completedReps === null) {
       className += 'planned';
-    } else if(this.state.completed === this.props.planned) {
+    } else if(this.state.completedReps === this.state.plannedReps) {
       className += 'complete';
     } else {
       className += 'incomplete';
@@ -50,7 +84,7 @@ class ExercisePlan extends Component {
   render() {
     let repRecorders = this.props.exercise.workSets.map(set => h(
       RepRecorder,
-      { planned: set },
+      { setRecord: set },
     ));
 
     return h(
@@ -92,20 +126,77 @@ Button.defaultProps = {
   onClick: e => null,
 };
 
-class WorkoutPlan extends Component {
+class WorkoutRecord extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      workoutRecord: null
+    };
+
+    this.loadWorkoutRecord();
+  }
+
+  loadWorkoutRecord() {
+    fetch(
+      '/api/user/workout-record/start/',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        method: 'POST',
+        body: JSON.stringify({ programWorkout: this.props.programWorkoutId }),
+      },
+    ).then(response => {
+      if(!response.ok) throw Error(response.statusText);
+      return response.json();
+    }).then(responseJson => {
+      this.setState({ workoutRecord: responseJson });
+    });
+  }
+
   render() {
-    let exercises = this.props.workoutPlan.exercises.map(exercise => {
+    if(this.state.workoutRecord === null) return '';
+
+    let exercises = this.state.workoutRecord.exercises.map(exercise => {
       return h(ExercisePlan, { exercise: exercise });
     });
+
+    let handleClick = e => {
+      fetch(
+        '/api/user/workout-record/finish/',
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          method: 'POST',
+          body: JSON.stringify({
+            workoutRecord: this.state.workoutRecord.id,
+          }),
+        },
+      ).then(response => {
+        if(!response.ok) throw Error(response.statusText);
+        return response.json();
+      }).then(responseJson => {
+        this.props.onFinished();
+      });
+    };
+
     return h(
       'div',
       {},
-      h('h1', {}, this.props.workoutPlan.name),
+      h(
+        'h1',
+        {},
+        this.state.workoutRecord.name
+      ),
       exercises,
       h(
         Button,
         {
-          onClick: this.props.onFinished,
+          onClick: handleClick,
           text: 'Finish',
         },
       ),
@@ -113,7 +204,7 @@ class WorkoutPlan extends Component {
   }
 }
 
-class WorkoutPlanPickerButton extends Component {
+class ProgramWorkoutPickerButton extends Component {
   render() {
     let exercises = this.props.workout.exercises.map(exercise => {
       // If all workSets are equal, show in sets x reps form.
@@ -132,6 +223,10 @@ class WorkoutPlanPickerButton extends Component {
 
     let handleClick = e => this.props.onClick(this.props.workout);
 
+    let ongoingDisplay = this.props.workout.ongoing
+      ? ' (Ongoing)'
+      : '';
+
     return h(
       'div',
       {
@@ -141,51 +236,75 @@ class WorkoutPlanPickerButton extends Component {
       h(
         'div',
         { className: 'workout-plan-name' },
-        this.props.workout.name,
+        this.props.workout.name + ongoingDisplay,
       ),
       exercises,
     );
   }
 }
 
-class WorkoutPlanPicker extends Component {
+class ProgramWorkoutPicker extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      programWorkouts: null
+      recommendedProgramWorkouts: null,
+      otherProgramWorkouts: null
     };
 
-    fetch('/api/program/workout/').then(response => {
+    this.loadProgramWorkouts();
+  }
+
+  loadProgramWorkouts() {
+    fetch('/api/program/workout/recommend/').then(response => {
       if(!response.ok) {
         throw Error(response.statusText);
       }
 
       return response.json();
     }).then(responseJson => {
-      this.setState({ programWorkouts: responseJson.workouts });
+      this.setState({
+        recommendedProgramWorkouts: responseJson.recommended,
+        otherProgramWorkouts: responseJson.other,
+      });
     });
   }
 
   render() {
-    if(this.state.programWorkouts === null) return '';
+    if(this.state.recommendedProgramWorkouts === null || this.state.otherProgramWorkouts === null)
+      return '';
 
-    let workouts = this.state.programWorkouts.map(workout => h(
-      WorkoutPlanPickerButton,
+    let renderProgramWorkout = workout => h(
+      ProgramWorkoutPickerButton,
       {
-        onClick: this.props.onWorkoutPlanPicked,
+        onClick: this.props.onProgramWorkoutPicked,
         workout: workout,
       },
-    ));
+    );
+
+    let recommendedProgramWorkouts = this.state.recommendedProgramWorkouts.map(renderProgramWorkout);
+    let otherProgramWorkouts = this.state.otherProgramWorkouts.map(renderProgramWorkout);
+
+    let recommendedDisplay = recommendedProgramWorkouts.length > 0
+      ? [
+        h('p', {}, h('strong', {}, 'Recommended')),
+        recommendedProgramWorkouts,
+      ]
+      : h('i', {}, "Please choose a program to get workout recommendations");
+
+    let otherDisplay = otherProgramWorkouts.length > 0
+      ? [
+        h('p', {}, h('strong', {}, 'Other')),
+        otherProgramWorkouts,
+      ]
+      : '';
+
     return h(
       'div',
       {},
-      h(
-        'p',
-        {},
-        'Which workout would you like to do today?',
-        workouts,
-      ),
+      h('p', {}, 'Which workout would you like to do today?'),
+      recommendedDisplay,
+      otherDisplay,
     );
   }
 }
@@ -195,31 +314,31 @@ class App extends Component {
     super(props);
 
     this.state = {
-      workoutPlan: null,
+      programWorkoutId: null,
     };
 
   }
 
   render() {
-    if(this.state.workoutPlan === null) {
-      let handleWorkoutPlanPicked = workoutPlan => this.setState({
-        workoutPlan: workoutPlan,
+    if(this.state.programWorkoutId === null) {
+      let handleProgramWorkoutPicked = programWorkout => this.setState({
+        programWorkoutId: programWorkout.id,
       });
 
       return h(
-        WorkoutPlanPicker,
+        ProgramWorkoutPicker,
         {
-          onWorkoutPlanPicked: handleWorkoutPlanPicked,
+          onProgramWorkoutPicked: handleProgramWorkoutPicked,
           program: this.state.program,
         },
       );
     }
 
     return h(
-      WorkoutPlan,
+      WorkoutRecord,
       {
-        onFinished: e => this.setState({ workoutPlan: null }),
-        workoutPlan: this.state.workoutPlan,
+        onFinished: e => this.setState({ programWorkoutId: null }),
+        programWorkoutId: this.state.programWorkoutId,
       },
     );
   }

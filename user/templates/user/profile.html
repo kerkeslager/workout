@@ -1,0 +1,53 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h1>{{ user.username }}'s Profile</h1>
+
+<div>
+  <h2>Exercises</h2>
+  {% for user_exercise in user_exercises %}
+    <h3>{{ user_exercise.exercise.name }}</h3>
+    <p>
+      <strong>Most Recent</strong>
+      {{ user_exercise.most_recent_record.planned_weight }}lbs
+    </p>
+    <p>
+      <strong>Personal Record</strong>
+      {{ user_exercise.personal_best_record.planned_weight }}lbs
+    </p>
+  {% empty %}
+    <i> No exercises</i>
+  {% endfor %}
+
+
+  <h2>Recent Workouts</h2>
+  {% for workout_record in user_workout_records %}
+    <h3>
+      {{ workout_record.program_workout.program.name }}:
+      {{ workout_record.program_workout.name }}
+    </h3>
+
+    {% for exercise_record in workout_record.exercise_records.all %}
+      <h4>{{ exercise_record.exercise.name }}</h4>
+      {% for set_record in exercise_record.set_records.all %}
+        {% if set_record.completed_reps is None %}
+          <p>
+            Skipped set of
+            {{ set_record.planned_reps }}
+            at {{ exercise_record.planned_weight }}lbs
+          </p>
+        {% else %}
+          <p>
+            {{ set_record.completed_reps }} / {{ set_record.planned_reps }}
+            at {{ exercise_record.planned_weight }}lbs
+          </p>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  {% empty %}
+    <i> No workouts</i>
+  {% endfor %}
+</div>
+{% endblock %}

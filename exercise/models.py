@@ -8,3 +8,9 @@ class Exercise(models.Model):
 
     def __str__(self):
         return self.name
+
+    def most_recent_exercise_record_for_user(self, user):
+        return self.exercise_records.filter(user=user).order_by('-created').first()
+
+    def personal_best_record_for_user(self, user):
+        return self.exercise_records.filter(user=user).order_by('-planned_weight').first()
