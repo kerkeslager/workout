@@ -5,16 +5,16 @@
 {% block content %}
   {% if uniqueness_error %}
     <div class='error'>
-      <p>A user already exists with that username.</p>
+      A user already exists with that username.
     </div>
   {% endif %}
 
   <form method='post' action='{% url "authorization:create" %}'>
     {% csrf_token %}
     <label for='username'>Username</label>
-    <input type='text' name='username'></input>
+    <input type='text' name='username' placedholder='Username'></input>
     <input type='submit' value='Submit'></input>
   </form>
 
-  <p>Already have an account? <a href='{% url "authorization:log_in" %}'>Log in</a></p>
+  <div class='message'>Already have an account? <a href='{% url "authorization:log_in" %}'>Log in</a></div>
 {% endblock %}

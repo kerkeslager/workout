@@ -5,7 +5,7 @@
 {% block content %}
   {% if incorrect_username_or_password_error %}
     <div class='error'>
-      <p>Incorrect username and/or password.</p>
+      Incorrect username and/or password.
     </div>
   {% endif %}
 
@@ -17,11 +17,11 @@
     {% endif %}
 
     <label for='username'>Username</label>
-    <input type='text' name='username'></input>
+    <input type='text' name='username' placeholder='Username'></input>
     <label for='password'>Password</label>
-    <input type='password' name='password'></input>
+    <input type='password' name='password' placeholder='Password'></input>
     <input type='submit' value='Submit'></input>
   </form>
 
-  <p>Don't have an account? <a href='{% url "authorization:create" %}'>Sign up</a></p>
+  <div class='message'>Don't have an account? <a href='{% url "authorization:create" %}'>Sign up</a></div>
 {% endblock %}
