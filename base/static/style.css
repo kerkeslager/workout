@@ -2,6 +2,8 @@ html {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -12,11 +14,10 @@ html {
 }
 
 body {
-  margin: 0;
+  margin: 1rem;
   padding: 0;
   width: calc(100% - 3rem);
   max-width: 30rem;
-  height: 100%;
 
   font-size: 14pt;
   font-family: Verdana, Geneva, sans-serif;
@@ -32,6 +33,11 @@ body {
   a:active {
     color: #ffffff;
   }
+}
+
+.password {
+  text-align: center;
+  font-family: consolas, "Liberation Mono", "Lucida Console", courier, monospace;
 }
 
 form {

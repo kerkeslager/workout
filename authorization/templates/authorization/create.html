@@ -3,56 +3,18 @@
 {% block title %}Create{% endblock %}
 
 {% block content %}
-  {% if request.method == 'GET' %}
-    <form method='post' action='{% url "authorization:create" %}'>
-      {% csrf_token %}
-      <label for='username'>Username</label>
-      <input type='text' name='username'></input>
-      <input type='submit' value='Submit'></input>
-    </form>
-
-    <p>Already have an account? <a href='{% url "authorization:log_in" %}'>Log in</a></p>
-  {% elif request.method == 'POST' %}
-    {% if uniqueness_error %}
-      <div class='error'>
-        <p>The username you selected was not unique.</p>
-      </div>
-      <form method='post' action='{% url "authorization:create" %}'>
-        {% csrf_token %}
-        <label for='username'>Username</label>
-        <input type='text' name='username'></input>
-        <input type='submit' value='Submit'></input>
-      </form>
-
-      <p>Already have an account? <a href='{% url "authorization:log_in" %}'>Log in</a></p>
-    {% else %}
-      {% if incorrect_password_error %}
-        <div class='error'>
-          <p>The password you entered was incorrect!</p>
-          <p>The correct password is:</p>
-        </div>
-      {% else %}
-        <div>
-          <p>An account has been created with username <strong>{{ username }}</strong>!</p>
-          <p>A secure password has been generated for your account:</p>
-        </div>
-      {% endif %}
-
-      <div class='password'>{{ password }}</div>
-
-      <div>
-        <p>Please carefully record this password as we will not be able to retrieve or reset it for you.</p>
-        <p>Sign in with this password below to access your account.</p>
-      </div>
-
-      <form method='post' action='{% url "authorization:create" %}'>
-        {% csrf_token %}
-        <input type='hidden' name='username' value='{{ username }}'></input>
-        <input type='hidden' name='hidden-password' value='{{ password }}'></input>
-        <label for='password'>Password</label>
-        <input type='password' name='password'></input>
-        <input type='submit' value='Submit'></input>
-      </form>
-    {% endif %}
+  {% if uniqueness_error %}
+    <div class='error'>
+      <p>A user already exists with that username.</p>
+    </div>
   {% endif %}
+
+  <form method='post' action='{% url "authorization:create" %}'>
+    {% csrf_token %}
+    <label for='username'>Username</label>
+    <input type='text' name='username'></input>
+    <input type='submit' value='Submit'></input>
+  </form>
+
+  <p>Already have an account? <a href='{% url "authorization:log_in" %}'>Log in</a></p>
 {% endblock %}

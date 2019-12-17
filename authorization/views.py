@@ -15,11 +15,7 @@ def create(request):
         return render(request, 'authorization/create.html')
 
     if request.method == 'POST':
-        username = request.POST.get('username')
-
-        if not username:
-            raise Exception('Not implemented')
-
+        username = request.POST['username']
         password = request.POST.get('password')
 
         if password:
@@ -33,25 +29,14 @@ def create(request):
                 hidden_password = request.POST.get('hidden-password')
                 return render(
                     request,
-                    'authorization/create.html',
+                    'authorization/password_confirm.html',
                     {
                         'username': username,
                         'password': hidden_password,
                     },
                 )
 
-        password = ' '.join(
-            secrets.choice(settings.PASSWORD_WORD_LIST)
-            for ignore in range(5)
-        )
-
-        try:
-            user = User.objects.create_user(
-                username=username,
-                password=password,
-            )
-
-        except IntegrityError as e:
+        if User.objects.filter(username=username).first():
             return render(
                 request,
                 'authorization/create.html',
@@ -60,9 +45,19 @@ def create(request):
                 }
             )
 
+        password = ' '.join(
+            secrets.choice(settings.PASSWORD_WORD_LIST)
+            for ignore in range(5)
+        )
+
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+        )
+
         return render(
             request,
-            'authorization/create.html',
+            'authorization/password_confirm.html',
             {
                 'username': username,
                 'password': password,
@@ -77,21 +72,21 @@ def delete(request):
         return render(request, 'authorization/delete_form.html')
 
     if request.method == 'POST':
-        confirm_delete = request.POST.get('confirm-delete')
+        password = request.POST.get('password')
 
-        if not confirm_delete:
+        if not request.user.check_password(password):
             return render(
                 request,
                 'authorization/delete_form.html',
                 {
-                    'checkbox_not_checked_error': True,
+                    'incorrect_password_error': True,
                 },
             )
 
         user = request.user
         logout(request)
         user.delete()
-        return redirect(reverse('home'))
+        return render(request, 'authorization/delete_confirmation.html')
 
     raise Exception('Not implemented')
 
