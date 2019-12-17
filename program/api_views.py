@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from . import models
 
 def program(request):
-    my_program = models.Program.objects.all()[0]
+    my_program = request.user.profile.programs.all().first()
 
     result = {
         'name': my_program.name,
