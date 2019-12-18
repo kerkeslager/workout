@@ -10,12 +10,12 @@ def _serialize_program_workout(workout, user):
         'ongoing': workout.ongoing_for_user(user),
         'exercises': [
             {
-                'id': workout_exercise.exercise.identifier,
-                'name': workout_exercise.exercise.name,
-                'weight': workout_exercise.weight,
-                'workSets': [ workout_exercise.reps for ignore in range(workout_exercise.sets) ],
+                'id': program_exercise.exercise.identifier,
+                'name': program_exercise.exercise.name,
+                'weight': program_exercise.weight,
+                'workSets': [ program_exercise.reps for ignore in range(program_exercise.sets) ],
             }
-            for workout_exercise in workout.exercises.through.objects.filter(workout=workout)
+            for program_exercise in workout.program_exercises.all()
         ]
     }
 

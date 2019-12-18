@@ -52,7 +52,7 @@ def start_workout_record(request):
     )
     workout_record.save()
 
-    for program_exercise in program_workout.programexercise_set.all():
+    for program_exercise in program_workout.program_exercises.all():
         exercise_record = models.ExerciseRecord(
             user=request.user,
             exercise=program_exercise.exercise,
