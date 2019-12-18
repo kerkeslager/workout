@@ -82,6 +82,8 @@ input[type=submit] {
   width: min-content;
   padding: 0.6rem 1rem;
   font-size: 16pt;
+
+  cursor: pointer;
 }
 
 input[type=button],
@@ -105,6 +107,19 @@ input[type=submit] {
     color: #dddddd;
     border-color: #dddddd;
   }
+}
+
+.button-panel {
+  display: flex;
+  flex-direction: row;
+}
+
+.button-panel .button {
+  margin-left: 1rem;
+}
+
+.button-panel .button:first-child {
+  margin-left: 0;
 }
 
 .exercise {
@@ -152,7 +167,38 @@ input[type=submit] {
   text-align: center;
 }
 
-.rep-recorder-list {
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+
+  -webkit-transform: translate(-50%,-50%);
+  -moz-transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+  -o-transform: translate(-50%,-50%);
+  transform: translate(-50%,-50%);
+
+  border: 2px solid black;
+
+  width: 80%;
+  max-width: 26rem;
+  padding: 1rem;
+
+  background: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: #111111;
+    border-color: #dddddd;
+  }
+}
+
+.modal .button-panel {
+  margin-top: 1rem;
+}
+
+.set-record-list {
   grid-column: 1 / span 2;
   grid-row: 2;
 
@@ -161,9 +207,10 @@ input[type=submit] {
   grid-gap: 1rem;
 }
 
-.rep-recorder {
-  border: 2px solid black;
+.set-record {
   height: 2.5rem;
+  width: 2.5rem;
+  padding: 0; /* This is to override the .button style */
 
   font-size: 16pt;
 
@@ -172,23 +219,17 @@ input[type=submit] {
   justify-content: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  .rep-recorder {
-    border-color: #dddddd;
-  }
-}
-
-.rep-recorder.planned {
+.set-record.planned {
   background: #cc0000;
   color: white;
 }
 
-.rep-recorder.incomplete {
+.set-record.incomplete {
   background: #eeee00;
   color: black;
 }
 
-.rep-recorder.complete {
+.set-record.complete {
   background: #00cc00;
   color: white;
 }

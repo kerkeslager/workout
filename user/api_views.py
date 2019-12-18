@@ -1,6 +1,7 @@
 import datetime
 import json
 
+from django.db import transaction
 from django.http import JsonResponse
 
 from . import models
@@ -53,7 +54,7 @@ def _get_planned_weight_for_user(program_exercise, user):
     if failed_counter >= 3:
         return max(
             program_exercise.start_weight,
-            round_to_nearest(last_successful_record.planned_weight * 4 / 5, 5),
+            utils.round_to_nearest(last_successful_record.planned_weight * 4 / 5, 5),
         )
 
     # Deload 20% for every two weeks since we last did this
@@ -72,6 +73,7 @@ def _get_planned_weight_for_user(program_exercise, user):
 
     return last_successful_record.planned_weight + 5
 
+@transaction.atomic
 def start_workout_record(request):
     assert request.method == 'POST'
     payload = json.loads(request.body)

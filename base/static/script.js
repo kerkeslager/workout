@@ -16,22 +16,27 @@ function getCookie(name) {
     return cookieValue;
 }
 
-class RepRecorder extends Component {
-  constructor(props) {
-    super(props);
-    this.state = props.setRecord;
-  }
-
+class SetRecord extends Component {
   render() {
-    let handleClick = e => {
+    let className = 'button set-record ';
+
+    if(this.props.setRecord.completedReps === null) {
+      className += 'planned';
+    } else if(this.props.setRecord.completedReps === this.props.setRecord.plannedReps) {
+      className += 'complete';
+    } else {
+      className += 'incomplete';
+    }
+
+    let onClick = e => {
       let completedReps = undefined;
 
-      if(this.state.completedReps === null) {
-        completedReps = this.state.plannedReps;
-      } else if(this.state.completedReps === 0) {
+      if(this.props.setRecord.completedReps === null) {
+        completedReps = this.props.setRecord.plannedReps;
+      } else if(this.props.setRecord.completedReps === 0) {
         completedReps = null;
       } else {
-        completedReps = this.state.completedReps - 1;
+        completedReps = this.props.setRecord.completedReps - 1;
       }
 
       fetch(
@@ -43,7 +48,7 @@ class RepRecorder extends Component {
           },
           method: 'POST',
           body: JSON.stringify({
-            setRecord: this.state.id,
+            setRecord: this.props.setRecord.id,
             completedReps: completedReps,
           }),
         },
@@ -51,40 +56,52 @@ class RepRecorder extends Component {
         if(!response.ok) throw Error(response.statusText);
         return response.json();
       }).then(responseJson => {
-        this.setState({ completedReps: completedReps });
+        let setRecord = immer.produce(
+          this.props.setRecord,
+          setRecord => {
+            setRecord.completedReps = completedReps;
+          },
+        );
+        this.props.onChanged(setRecord);
       });
     };
 
-    let display = this.state.completedReps === null
-      ? this.state.plannedReps
-      : this.state.completedReps;
-
-    let className = 'rep-recorder ';
-
-    if(this.state.completedReps === null) {
-      className += 'planned';
-    } else if(this.state.completedReps === this.state.plannedReps) {
-      className += 'complete';
-    } else {
-      className += 'incomplete';
-    }
+    let display = this.props.setRecord.completedReps === null
+      ? this.props.setRecord.plannedReps
+      : this.props.setRecord.completedReps;
 
     return h(
       'div',
       {
         className: className,
-        onClick: handleClick,
+        onClick: onClick,
       },
       display,
     );
   }
 }
 
-class ExercisePlan extends Component {
+class ExerciseRecord extends Component {
   render() {
-    let repRecorders = this.props.exercise.workSets.map(set => h(
-      RepRecorder,
-      { setRecord: set },
+    let onSetRecordChanged = setRecord => {
+      let exerciseRecord = immer.produce(
+        this.props.exercise,
+        exerciseRecord => {
+          let index = this.props.exercise.workSets.findIndex(
+            sr => sr.id === setRecord.id,
+          );
+          exerciseRecord.workSets[index] = setRecord;
+        },
+      );
+      this.props.onChanged(exerciseRecord);
+    };
+
+    let setRecords = this.props.exercise.workSets.map(setRecord => h(
+      SetRecord,
+      {
+        onChanged: onSetRecordChanged,
+        setRecord: setRecord,
+      },
     ));
 
     return h(
@@ -103,8 +120,8 @@ class ExercisePlan extends Component {
       ),
       h(
         'div',
-        { className: 'rep-recorder-list' },
-        repRecorders,
+        { className: 'set-record-list' },
+        setRecords,
       ),
     );
   }
@@ -131,6 +148,7 @@ class WorkoutRecord extends Component {
     super(props);
 
     this.state = {
+      showConfirmFinishIncompleteWorkout: false,
       workoutRecord: null
     };
 
@@ -180,13 +198,70 @@ class WorkoutRecord extends Component {
   render() {
     if(this.state.workoutRecord === null) return '';
 
+    let onExerciseChanged = exerciseRecord => {
+      let workoutRecord = immer.produce(
+        this.state.workoutRecord,
+        workoutRecord => {
+          let index = this.state.workoutRecord.exercises.findIndex(
+            ex => ex.id === exerciseRecord.id
+          );
+
+          workoutRecord.exercises[index] = exerciseRecord;
+        },
+      );
+      this.setState({ workoutRecord: workoutRecord });
+    };
+
     let exercises = this.state.workoutRecord.exercises.map(exercise => {
-      return h(ExercisePlan, { exercise: exercise });
+      return h(
+        ExerciseRecord,
+        {
+          exercise: exercise,
+          onChanged: onExerciseChanged,
+        },
+      );
     });
 
     let handleClick = e => {
-      this.finishWorkout();
+      let isWorkoutComplete = this.state.workoutRecord.exercises.every(
+        exerciseRecord => exerciseRecord.workSets.every(
+          setRecord => setRecord.completedReps !== null
+        )
+      );
+
+      if(isWorkoutComplete) this.finishWorkout();
+      else this.setState({ showConfirmFinishIncompleteWorkout: true });
     };
+
+    let modal = null;
+
+    if(this.state.showConfirmFinishIncompleteWorkout) {
+      modal = h(
+        'div',
+        { className: 'modal' },
+        'You have not completed this workout. Are you sure you want to finish it?',
+        h(
+          'div',
+          { className: 'button-panel' },
+          h(
+            'div',
+            {
+              className: 'button',
+              onClick: e => this.finishWorkout()
+            },
+            'Finish',
+          ),
+          h(
+            'div',
+            {
+              className: 'button',
+              onClick: e => this.setState({ showConfirmFinishIncompleteWorkout: false })
+            },
+            'Cancel',
+          ),
+        ),
+      );
+    }
 
     return h(
       'div',
@@ -197,6 +272,7 @@ class WorkoutRecord extends Component {
         this.state.workoutRecord.name
       ),
       exercises,
+      modal,
       h(
         Button,
         {

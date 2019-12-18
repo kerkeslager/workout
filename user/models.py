@@ -18,7 +18,7 @@ class UserProfile(models.Model):
         return exercise_models.Exercise.objects.filter(
             exercise_records__user=self.user,
             exercise_records__set_records__completed_reps__gt=0,
-        )
+        ).distinct()
 
     def get_recommended_program_workouts(self):
         ongoing = []

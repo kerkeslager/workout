@@ -14,7 +14,7 @@ def profile(request):
 
     user_workout_records = [
         workout_record
-        for workout_record in user.workout_records.filter(is_finished=True).order_by('-created')
+        for workout_record in user.workout_records.filter(is_finished=True).order_by('-created')[:3]
     ]
 
     return render(
