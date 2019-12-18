@@ -156,6 +156,27 @@ class WorkoutRecord extends Component {
     });
   }
 
+  finishWorkout() {
+    fetch(
+      '/api/user/workout-record/finish/',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          workoutRecord: this.state.workoutRecord.id,
+        }),
+      },
+    ).then(response => {
+      if(!response.ok) throw Error(response.statusText);
+      return response.json();
+    }).then(responseJson => {
+      this.props.onFinished();
+    });
+  }
+
   render() {
     if(this.state.workoutRecord === null) return '';
 
@@ -164,24 +185,7 @@ class WorkoutRecord extends Component {
     });
 
     let handleClick = e => {
-      fetch(
-        '/api/user/workout-record/finish/',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
-          },
-          method: 'POST',
-          body: JSON.stringify({
-            workoutRecord: this.state.workoutRecord.id,
-          }),
-        },
-      ).then(response => {
-        if(!response.ok) throw Error(response.statusText);
-        return response.json();
-      }).then(responseJson => {
-        this.props.onFinished();
-      });
+      this.finishWorkout();
     };
 
     return h(

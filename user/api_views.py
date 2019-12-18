@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.http import JsonResponse
@@ -57,8 +58,8 @@ def _get_planned_weight_for_user(program_exercise, user):
 
     # Deload 20% for every two weeks since we last did this
     last_record = previous_exercise_records.first()
-    if last_record.created < (datetime.datetime.utcnow() - datetime.timedelta(days=14)):
-        days_since_last_record = (datetime.datetime.utcnow() - last_record.created).days
+    if last_record.created < (utils.utcnow() - datetime.timedelta(days=14)):
+        days_since_last_record = (utils.utcnow() - last_record.created).days
         two_week_periods = days_since_last_record // 14
         cumulative_factor = 4**two_week_periods / 5**two_week_periods
         return max(
