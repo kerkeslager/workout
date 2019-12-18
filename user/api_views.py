@@ -3,6 +3,7 @@ import json
 from django.http import JsonResponse
 
 from . import models
+from base import utils
 from program import models as program_models
 
 def _serialize_workout_record(workout_record):
@@ -27,6 +28,48 @@ def _serialize_workout_record(workout_record):
             for exercise_record in workout_record.exercise_records.all()
         ],
     }
+
+def _get_planned_weight_for_user(program_exercise, user):
+    previous_exercise_records = models.ExerciseRecord.objects.filter(
+        user=user,
+        exercise=program_exercise.exercise,
+    ).order_by('-created')
+
+    failed_counter = 0
+    last_successful_record = None
+
+    for previous_exercise_record in previous_exercise_records:
+        if previous_exercise_record.succeeded:
+            last_successful_record = previous_exercise_record
+            break
+        else:
+            failed_counter += 1
+
+    if not last_successful_record:
+        return program_exercise.start_weight
+
+    # Deload if we've failed 3 times
+    if failed_counter >= 3:
+        return max(
+            program_exercise.start_weight,
+            round_to_nearest(last_successful_record.planned_weight * 4 / 5, 5),
+        )
+
+    # Deload 20% for every two weeks since we last did this
+    last_record = previous_exercise_records.first()
+    if last_record.created < (datetime.datetime.utcnow() - datetime.timedelta(days=14)):
+        days_since_last_record = (datetime.datetime.utcnow() - last_record.created).days
+        two_week_periods = days_since_last_record // 14
+        cumulative_factor = 4**two_week_periods / 5**two_week_periods
+        return max(
+            program_exercise.start_weight,
+            round_to_nearest(
+                last_successful_record.planned_weight * cumulative_factor,
+                5,
+            ),
+        )
+
+    return last_successful_record.planned_weight + 5
 
 def start_workout_record(request):
     assert request.method == 'POST'
@@ -57,7 +100,7 @@ def start_workout_record(request):
             user=request.user,
             exercise=program_exercise.exercise,
             workout_record=workout_record,
-            planned_weight=program_exercise.weight,
+            planned_weight=_get_planned_weight_for_user(program_exercise, request.user),
         )
         exercise_record.save()
 

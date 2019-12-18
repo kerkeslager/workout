@@ -56,7 +56,7 @@ class ProgramWorkout(models.Model):
 class ProgramExercise(models.Model):
     workout = models.ForeignKey('ProgramWorkout', models.CASCADE, related_name='program_exercises')
     exercise = models.ForeignKey('exercise.Exercise', models.CASCADE)
-    weight = models.IntegerField(null=False)
+    start_weight = models.IntegerField(null=False)
     sets = models.IntegerField(null=False)
     reps = models.IntegerField(null=False)
 

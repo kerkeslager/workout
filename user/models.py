@@ -64,8 +64,16 @@ class ExerciseRecord(models.Model):
     exercise = models.ForeignKey('exercise.Exercise', on_delete=models.PROTECT, related_name='exercise_records')
     planned_weight = models.IntegerField(null=False)
 
+    @property
+    def succeeded(self):
+        return all(set_record.succeeded for set_record in self.set_records.all())
+
 class SetRecord(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
     exercise_record = models.ForeignKey(ExerciseRecord, on_delete=models.CASCADE, related_name='set_records')
     planned_reps = models.IntegerField(null=False)
     completed_reps = models.IntegerField(null=True, default=None)
+
+    @property
+    def succeeded(self):
+        return self.planned_reps == self.completed_reps

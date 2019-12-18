@@ -12,7 +12,7 @@ def _serialize_program_workout(workout, user):
             {
                 'id': program_exercise.exercise.identifier,
                 'name': program_exercise.exercise.name,
-                'weight': program_exercise.weight,
+                'weight': program_exercise.start_weight,
                 'workSets': [ program_exercise.reps for ignore in range(program_exercise.sets) ],
             }
             for program_exercise in workout.program_exercises.all()

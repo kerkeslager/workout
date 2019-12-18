@@ -3,6 +3,7 @@ from django.db import migrations
 def create_data(apps, schema_editor):
     Program = apps.get_model('program', 'Program')
     ProgramWorkout = apps.get_model('program', 'ProgramWorkout')
+    ProgramExercise = apps.get_model('program', 'ProgramExercise')
     Exercise = apps.get_model('exercise', 'Exercise')
 
     program = Program(name='Basic Program')
@@ -15,40 +16,40 @@ def create_data(apps, schema_editor):
         name='Low bar squat',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 5,
-            'reps': 5,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=5,
+        reps=5,
     )
+    program_exercise.save()
 
     exercise = Exercise(
         name='Bench press',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 5,
-            'reps': 5,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=5,
+        reps=5,
     )
+    program_exercise.save()
 
     exercise = Exercise(
         name='Power clean',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 5,
-            'reps': 3,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=5,
+        reps=3,
     )
+    program_exercise.save()
 
     workout = ProgramWorkout(program=program, name='Workout B')
     workout.save()
@@ -57,40 +58,40 @@ def create_data(apps, schema_editor):
         name='Front squat',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 5,
-            'reps': 5,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=5,
+        reps=5,
     )
+    program_exercise.save()
 
     exercise = Exercise(
         name='Skullcrusher',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 5,
-            'reps': 5,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=5,
+        reps=5,
     )
+    program_exercise.save()
 
     exercise = Exercise(
         name='Pendlay row',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 5,
-            'reps': 5,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=5,
+        reps=5,
     )
+    program_exercise.save()
 
     workout = ProgramWorkout(program=program, name='Workout C')
     workout.save()
@@ -99,40 +100,40 @@ def create_data(apps, schema_editor):
         name='Deadlift',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 1,
-            'reps': 5,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=1,
+        reps=5,
     )
+    program_exercise.save()
 
     exercise = Exercise(
         name='Overhead press',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 5,
-            'reps': 5,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=5,
+        reps=5,
     )
+    program_exercise.save()
 
     exercise = Exercise(
         name='Pull up',
     )
     exercise.save()
-    workout.exercises.add(
-        exercise,
-        through_defaults={
-            'weight': 45,
-            'sets': 5,
-            'reps': 5,
-        },
+    program_exercise = ProgramExercise(
+        workout=workout,
+        exercise=exercise,
+        start_weight=45,
+        sets=5,
+        reps=5,
     )
+    program_exercise.save()
 
 class Migration(migrations.Migration):
 
