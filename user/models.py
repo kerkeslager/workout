@@ -29,8 +29,9 @@ class UserProfile(models.Model):
                 if program_workout.ongoing_for_user(self.user):
                     ongoing.append(program_workout)
 
-            for program_workout in program.least_recent_program_workouts_for_user(self.user):
-                least_recent_in_program.append(program_workout)
+            least_recent_in_program.append(
+                program.least_recent_program_workout_for_user(self.user)
+            )
 
         if any(ongoing):
             return ongoing

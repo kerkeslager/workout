@@ -9,7 +9,7 @@ class Program(models.Model):
     def __str__(self):
         return self.name
 
-    def least_recent_program_workouts_for_user(self, user):
+    def least_recent_program_workout_for_user(self, user):
         never_done = []
         dates_to_program_workouts = {}
 
@@ -23,11 +23,11 @@ class Program(models.Model):
                 never_done.append(program_workout)
 
         if any(never_done):
-            return never_done
+            # If there is more than one program workout that has never been
+            # done, return the first one alphabetically by name.
+            return sorted(never_done, key=lambda pw: pw.name)[0]
 
-        least_recent_program_workout = dates_to_program_workouts[min(dates_to_program_workouts.keys())]
-
-        return [least_recent_program_workout]
+        return dates_to_program_workouts[min(dates_to_program_workouts.keys())]
 
 class ProgramWorkout(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
