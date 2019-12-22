@@ -2,9 +2,22 @@ import uuid
 
 from django.db import models
 
+BARBELL = 'BB'
+BODY_WEIGHT = 'BW'
+CURL_BAR = 'CB'
+DUMBBELL = 'DB'
+
+RESISTANCE_CHOICES = (
+    (BARBELL, 'Barbell'),
+    (BODY_WEIGHT, 'Body weight'),
+    (CURL_BAR, 'Curl bar'),
+    (DUMBBELL, 'Dumbbell'),
+)
+
 class Exercise(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=256)
+    resistance = models.CharField(max_length=2, choices=RESISTANCE_CHOICES)
 
     def __str__(self):
         return self.name
