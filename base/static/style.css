@@ -228,17 +228,20 @@ input[type=submit] {
   color: white;
 }
 
-.row {
+.warmup {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-.row > :not(:first-child) {
-  margin-left: 1rem;
-}
-
-.column {
+.warmup .info {
   display: flex;
   flex-direction: column;
+  text-align: center;
+}
+
+.warmup .sets {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1rem;
 }

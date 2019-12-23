@@ -164,12 +164,11 @@ class ExerciseRecord extends Component {
         ),
         h(
           'div',
-          { className: 'row' },
+          { className: 'warmup' },
           h(
             'div',
             {
-              className: 'column',
-              style: 'text-align: center;',
+              className: 'info',
             },
             'Warmup',
             h(
@@ -183,7 +182,7 @@ class ExerciseRecord extends Component {
           ),
           h(
             'div',
-            { className: 'column' },
+            { className: 'sets' },
             warmupSetRecordGroups,
           ),
         )
