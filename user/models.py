@@ -67,13 +67,23 @@ class ExerciseRecord(models.Model):
 
     @property
     def succeeded(self):
-        return all(set_record.succeeded for set_record in self.set_records.all())
+        return all(set_record.succeeded for set_record in self.work_set_records.all())
+
+    @property
+    def warmup_set_records(self):
+        return self.set_records.filter(is_work_set=False)
+
+    @property
+    def work_set_records(self):
+        return self.set_records.filter(is_work_set=True)
 
 class SetRecord(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
     exercise_record = models.ForeignKey(ExerciseRecord, on_delete=models.CASCADE, related_name='set_records')
     planned_reps = models.IntegerField(null=False)
     completed_reps = models.IntegerField(null=True, default=None)
+    weight=models.IntegerField(null=False)
+    is_work_set = models.BooleanField(null=False)
 
     @property
     def succeeded(self):

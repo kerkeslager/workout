@@ -124,38 +124,35 @@ input[type=submit] {
 
 .exercise {
   display: grid;
-  grid-template-columns: calc(100% - 7rem) 5rem;
-  grid-column-gap: 2rem;
-  grid-row-gap: 1rem;
-  align-items: center;
-
   margin-bottom: 2rem;
 }
 
-.exercise-name {
-  grid-column: 1;
-  grid-row: 1;
-
+.exercise .name {
   font-size: 18pt;
-  text-align: left;
+  margin-bottom: 0.8rem;
 }
 
-.weight {
-  grid-column: 2;
-  grid-row: 1;
+.exercise .set-record-list-at-weight {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
+  margin-top: 0.6rem;
+}
+
+.exercise .weight {
   font-size: 16pt;
-  text-align: right;
+  margin-right: 0.8rem;
+  width: 5rem;
+}
+
+.exercise .set-record-list {
 }
 
 .button.workout-plan-picker-button {
   width: calc(100% - 3rem);
   font-size: 12pt;
   margin-top: 1rem;
-}
-
-@media (prefers-color-scheme: dark) {
-
 }
 
 .button.workout-plan-picker-button .workout-plan-name {
@@ -199,9 +196,6 @@ input[type=submit] {
 }
 
 .set-record-list {
-  grid-column: 1 / span 2;
-  grid-row: 2;
-
   display: grid;
   grid-template-columns: repeat(5, 2.5rem);
   grid-gap: 1rem;
@@ -232,4 +226,19 @@ input[type=submit] {
 .set-record.complete {
   background: #00cc00;
   color: white;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.row > :not(:first-child) {
+  margin-left: 1rem;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
 }

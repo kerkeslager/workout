@@ -8,6 +8,14 @@ from . import models
 from base import utils
 from program import models as program_models
 
+def _serialize_set_record(set_record):
+    return {
+        'id': set_record.identifier,
+        'plannedReps': set_record.planned_reps,
+        'completedReps': set_record.completed_reps,
+        'weight': set_record.weight,
+    }
+
 def _serialize_workout_record(workout_record):
     return {
         'id': workout_record.identifier,
@@ -18,13 +26,13 @@ def _serialize_workout_record(workout_record):
                 'id': exercise_record.identifier,
                 'name': exercise_record.exercise.name,
                 'weight': exercise_record.planned_weight,
+                'warmupSets': [
+                    _serialize_set_record(set_record)
+                    for set_record in exercise_record.warmup_set_records.all()
+                ],
                 'workSets': [
-                    {
-                        'id': set_record.identifier,
-                        'plannedReps': set_record.planned_reps,
-                        'completedReps': set_record.completed_reps,
-                    }
-                    for set_record in exercise_record.set_records.all()
+                    _serialize_set_record(set_record)
+                    for set_record in exercise_record.work_set_records.all()
                 ],
             }
             for exercise_record in workout_record.exercise_records.all()
@@ -107,10 +115,35 @@ def start_workout_record(request):
         )
         exercise_record.save()
 
+        planned_weight = exercise_record.planned_weight
+
+        if planned_weight * 75 / 100 > program_exercise.start_weight:
+            set_record = models.SetRecord(
+                exercise_record=exercise_record,
+                planned_reps=program_exercise.reps,
+                weight=program_exercise.start_weight,
+                is_work_set=False,
+            )
+            set_record.save()
+
+        for percent in (45, 65, 75, 85):
+            if planned_weight * (percent - 25) / 100 > program_exercise.start_weight:
+                weight = utils.round_to_nearest(planned_weight * percent / 100, 5)
+
+                set_record = models.SetRecord(
+                    exercise_record=exercise_record,
+                    planned_reps=program_exercise.reps,
+                    weight=weight,
+                    is_work_set=False,
+                )
+                set_record.save()
+
         for s in range(program_exercise.sets):
             set_record = models.SetRecord(
                 exercise_record=exercise_record,
                 planned_reps=program_exercise.reps,
+                weight=exercise_record.planned_weight,
+                is_work_set=True,
             )
             set_record.save()
 

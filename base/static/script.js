@@ -81,6 +81,34 @@ class SetRecord extends Component {
   }
 }
 
+class SetRecordList extends Component {
+  render() {
+    let setRecords = this.props.setRecords.map(setRecord => h(
+      SetRecord,
+      {
+        onChanged: this.props.onSetRecordChanged,
+        setRecord: setRecord,
+      },
+    ));
+
+    return h(
+      'div',
+      { className: 'set-record-list-at-weight' },
+      h(
+        'div',
+        {className: 'weight'},
+        this.props.weight,
+        'lbs',
+      ),
+      h(
+        'div',
+        { className: 'set-record-list' },
+        setRecords,
+      ),
+    );
+  }
+}
+
 class ExerciseRecord extends Component {
   render() {
     let onSetRecordChanged = setRecord => {
@@ -90,39 +118,95 @@ class ExerciseRecord extends Component {
           let index = this.props.exercise.workSets.findIndex(
             sr => sr.id === setRecord.id,
           );
-          exerciseRecord.workSets[index] = setRecord;
+
+          if(index != -1) exerciseRecord.workSets[index] = setRecord;
+
+          index = this.props.exercise.warmupSets.findIndex(
+            sr => sr.id === setRecord.id,
+          );
+
+          if(index != -1) exerciseRecord.warmupSets[index] = setRecord;
         },
       );
       this.props.onChanged(exerciseRecord);
     };
 
-    let setRecords = this.props.exercise.workSets.map(setRecord => h(
-      SetRecord,
-      {
-        onChanged: onSetRecordChanged,
-        setRecord: setRecord,
-      },
-    ));
+    let skipWarmup = e => {
+      e.preventDefault();
+      let exerciseRecord = immer.produce(
+        this.props.exercise,
+        exerciseRecord => { exerciseRecord.skipWarmup = true; }
+      );
+      this.props.onChanged(exerciseRecord);
+    };
+
+    let isWarmedUp = this.props.exercise.warmupSets.every(
+      setRecord => setRecord.completedReps === setRecord.plannedReps
+    );
+
+    if(!isWarmedUp && !(this.props.exercise.skipWarmup)) {
+      let warmupSetRecordGroups = this.props.exercise.warmupSets.map(setRecord => h(
+        SetRecordList,
+        {
+          onSetRecordChanged: onSetRecordChanged,
+          setRecords: [setRecord],
+          weight: setRecord.weight,
+        }
+      ));
+
+      return h(
+        'div',
+        { className: 'exercise' },
+        h(
+          'div',
+          {className: 'name'},
+          this.props.exercise.name,
+        ),
+        h(
+          'div',
+          { className: 'row' },
+          h(
+            'div',
+            {
+              className: 'column',
+              style: 'text-align: center;',
+            },
+            'Warmup',
+            h(
+              'a',
+              {
+                href: '',
+                onClick: skipWarmup,
+              },
+              '(Skip)',
+            ),
+          ),
+          h(
+            'div',
+            { className: 'column' },
+            warmupSetRecordGroups,
+          ),
+        )
+      );
+    }
+
 
     return h(
       'div',
       { className: 'exercise' },
       h(
         'div',
-        {className: 'exercise-name'},
+        {className: 'name'},
         this.props.exercise.name,
       ),
       h(
-        'div',
-        {className: 'weight'},
-        this.props.exercise.weight,
-        'lbs',
-      ),
-      h(
-        'div',
-        { className: 'set-record-list' },
-        setRecords,
-      ),
+        SetRecordList,
+        {
+          onSetRecordChanged: onSetRecordChanged,
+          setRecords: this.props.exercise.workSets,
+          weight: this.props.exercise.weight,
+        },
+      )
     );
   }
 }
