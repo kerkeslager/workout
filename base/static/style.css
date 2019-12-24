@@ -77,6 +77,10 @@ input[type=submit] {
   text-align: center;
 }
 
+.warning {
+  color: yellow;
+}
+
 .button {
   border: 2px solid black;
   width: min-content;
@@ -120,6 +124,11 @@ input[type=submit] {
 
 .button-panel .button:first-child {
   margin-left: 0;
+}
+
+input[type=number],
+input[type=text]{
+  font-size: 16pt;
 }
 
 .exercise {
@@ -184,6 +193,10 @@ input[type=submit] {
   background: white;
 }
 
+.modal > :not(:first-child) {
+  margin-top: 0.8rem;
+}
+
 @media (prefers-color-scheme: dark) {
   .modal {
     background: #111111;
@@ -244,4 +257,10 @@ input[type=submit] {
   display: flex;
   flex-direction: column;
   margin-left: 1rem;
+}
+
+#weight-change-input {
+  width: 4.2rem;
+  padding: 0;
+  text-align: center;
 }

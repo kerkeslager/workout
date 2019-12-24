@@ -110,6 +110,14 @@ class SetRecordList extends Component {
 }
 
 class ExerciseRecord extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isChangeWeightModalVisible: false,
+    };
+  }
+
   render() {
     let onSetRecordChanged = setRecord => {
       let exerciseRecord = immer.produce(
@@ -131,20 +139,97 @@ class ExerciseRecord extends Component {
       this.props.onChanged(exerciseRecord);
     };
 
-    let skipWarmup = e => {
+    let showChangeWeightModal = e => {
       e.preventDefault();
-      let exerciseRecord = immer.produce(
-        this.props.exercise,
-        exerciseRecord => { exerciseRecord.skipWarmup = true; }
-      );
-      this.props.onChanged(exerciseRecord);
+
+      this.setState({ isChangeWeightModalVisible: true });
     };
+
+    let changeWeightModal = null;
+
+    if(this.state.isChangeWeightModalVisible) {
+      let handleWeightChanged = () => {
+        let weight = document.getElementById('weight-change-input').valueAsNumber;
+
+        if(weight != this.props.exercise.weight) {
+          fetch(
+            '/api/user/exercise-record/update/',
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+              },
+              method: 'POST',
+              body: JSON.stringify({
+                exerciseRecord: this.props.exercise.id,
+                weight: weight,
+              }),
+            },
+          ).then(response => {
+            if(!response.ok) {
+              throw Error(response.statusText);
+            }
+            return response.json();
+          }).then(responseJson => {
+            this.props.onChanged(responseJson.exerciseRecord);
+          });
+        }
+
+        this.setState({ isChangeWeightModalVisible: false });
+      };
+      changeWeightModal = h(
+        Modal,
+        {},
+        h(
+          'div',
+          { className: 'warning' },
+          'WARNING: Changing your work weight will generate a new warmup and delete any warmup or work sets that you have already completed.',
+        ),
+        h(
+          'input',
+          {
+            id: 'weight-change-input',
+            step: 5,
+            type: 'number',
+            value: this.props.exercise.weight,
+          },
+        ),
+        ' lbs',
+        h(
+          'div',
+          { className: 'button-panel' },
+          h(
+            Button,
+            {
+              onClick: handleWeightChanged,
+              text: 'Change',
+            },
+          ),
+          h(
+            Button,
+            {
+              onClick: e => this.setState({ isChangeWeightModalVisible: false }),
+              text: 'Cancel',
+            },
+          ),
+        ),
+      );
+    }
 
     let isWarmedUp = this.props.exercise.warmupSets.every(
       setRecord => setRecord.completedReps === setRecord.plannedReps
     );
 
     if(!isWarmedUp && !(this.props.exercise.skipWarmup)) {
+      let skipWarmup = e => {
+        e.preventDefault();
+        let exerciseRecord = immer.produce(
+          this.props.exercise,
+          exerciseRecord => { exerciseRecord.skipWarmup = true; }
+        );
+        this.props.onChanged(exerciseRecord);
+      };
+
       let warmupSetRecordGroups = this.props.exercise.warmupSets.map(setRecord => h(
         SetRecordList,
         {
@@ -161,6 +246,15 @@ class ExerciseRecord extends Component {
           'div',
           {className: 'name'},
           this.props.exercise.name,
+          ' ',
+          h(
+            'a',
+            {
+              href: '',
+              onClick: showChangeWeightModal,
+            },
+            '(' + this.props.exercise.weight + 'lbs)',
+          ),
         ),
         h(
           'div',
@@ -185,10 +279,10 @@ class ExerciseRecord extends Component {
             { className: 'sets' },
             warmupSetRecordGroups,
           ),
-        )
+        ),
+        changeWeightModal,
       );
     }
-
 
     return h(
       'div',
@@ -197,6 +291,15 @@ class ExerciseRecord extends Component {
         'div',
         {className: 'name'},
         this.props.exercise.name,
+        ' ',
+        h(
+          'a',
+          {
+            href: '',
+            onClick: showChangeWeightModal,
+          },
+          '(' + this.props.exercise.weight + 'lbs)',
+        ),
       ),
       h(
         SetRecordList,
@@ -205,7 +308,8 @@ class ExerciseRecord extends Component {
           setRecords: this.props.exercise.workSets,
           weight: this.props.exercise.weight,
         },
-      )
+      ),
+      changeWeightModal,
     );
   }
 }
@@ -225,6 +329,18 @@ class Button extends Component {
 Button.defaultProps = {
   onClick: e => null,
 };
+
+class Modal extends Component {
+  render() {
+    return h(
+      'div',
+      {
+        className: 'modal',
+      },
+      this.props.children,
+    );
+  }
+}
 
 class WorkoutRecord extends Component {
   constructor(props) {

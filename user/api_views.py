@@ -16,25 +16,28 @@ def _serialize_set_record(set_record):
         'weight': set_record.weight,
     }
 
+def _serialize_exercise_record(exercise_record):
+    return {
+        'id': exercise_record.identifier,
+        'name': exercise_record.exercise.name,
+        'weight': exercise_record.planned_weight,
+        'warmupSets': [
+            _serialize_set_record(set_record)
+            for set_record in exercise_record.warmup_set_records.all()
+        ],
+        'workSets': [
+            _serialize_set_record(set_record)
+            for set_record in exercise_record.work_set_records.all()
+        ],
+    }
+
 def _serialize_workout_record(workout_record):
     return {
         'id': workout_record.identifier,
         'complete': workout_record.is_finished,
         'name': workout_record.program_workout.name,
         'exercises': [
-            {
-                'id': exercise_record.identifier,
-                'name': exercise_record.exercise.name,
-                'weight': exercise_record.planned_weight,
-                'warmupSets': [
-                    _serialize_set_record(set_record)
-                    for set_record in exercise_record.warmup_set_records.all()
-                ],
-                'workSets': [
-                    _serialize_set_record(set_record)
-                    for set_record in exercise_record.work_set_records.all()
-                ],
-            }
+            _serialize_exercise_record(exercise_record)
             for exercise_record in workout_record.exercise_records.all()
         ],
     }
@@ -81,6 +84,68 @@ def _get_planned_weight_for_user(program_exercise, user):
 
     return last_successful_record.planned_weight + 5
 
+def _generate_set_records(exercise_record, program_exercise=None):
+    if program_exercise is None:
+        program_exercise = exercise_record.workout_record.program_workout.program_exercises.filter(
+            exercise=exercise_record.exercise,
+        ).first()
+
+    planned_weight = exercise_record.planned_weight
+
+    if planned_weight * 75 / 100 > program_exercise.start_weight:
+        set_record = models.SetRecord(
+            exercise_record=exercise_record,
+            planned_reps=program_exercise.reps,
+            weight=program_exercise.start_weight,
+            is_work_set=False,
+        )
+        set_record.save()
+
+    for percent in (45, 65, 75, 85):
+        if planned_weight * (percent - 25) / 100 > program_exercise.start_weight:
+            weight = utils.round_to_nearest(planned_weight * percent / 100, 5)
+
+            set_record = models.SetRecord(
+                exercise_record=exercise_record,
+                planned_reps=program_exercise.reps,
+                weight=weight,
+                is_work_set=False,
+            )
+            set_record.save()
+
+    for s in range(program_exercise.sets):
+        set_record = models.SetRecord(
+            exercise_record=exercise_record,
+            planned_reps=program_exercise.reps,
+            weight=exercise_record.planned_weight,
+            is_work_set=True,
+        )
+        set_record.save()
+
+@transaction.atomic
+def update_exercise_record(request):
+    assert request.method == 'POST'
+    payload = json.loads(request.body)
+    exercise_record_identifier = payload['exerciseRecord']
+    weight = payload['weight']
+
+    exercise_record = models.ExerciseRecord.objects.get(
+        identifier=exercise_record_identifier,
+        user=request.user,
+    )
+
+    exercise_record.planned_weight = int(weight)
+    exercise_record.save()
+
+    exercise_record.set_records.all().delete()
+
+    _generate_set_records(exercise_record)
+
+    return JsonResponse({
+        'success': True,
+        'exerciseRecord': _serialize_exercise_record(exercise_record),
+    })
+
 @transaction.atomic
 def start_workout_record(request):
     assert request.method == 'POST'
@@ -115,37 +180,7 @@ def start_workout_record(request):
         )
         exercise_record.save()
 
-        planned_weight = exercise_record.planned_weight
-
-        if planned_weight * 75 / 100 > program_exercise.start_weight:
-            set_record = models.SetRecord(
-                exercise_record=exercise_record,
-                planned_reps=program_exercise.reps,
-                weight=program_exercise.start_weight,
-                is_work_set=False,
-            )
-            set_record.save()
-
-        for percent in (45, 65, 75, 85):
-            if planned_weight * (percent - 25) / 100 > program_exercise.start_weight:
-                weight = utils.round_to_nearest(planned_weight * percent / 100, 5)
-
-                set_record = models.SetRecord(
-                    exercise_record=exercise_record,
-                    planned_reps=program_exercise.reps,
-                    weight=weight,
-                    is_work_set=False,
-                )
-                set_record.save()
-
-        for s in range(program_exercise.sets):
-            set_record = models.SetRecord(
-                exercise_record=exercise_record,
-                planned_reps=program_exercise.reps,
-                weight=exercise_record.planned_weight,
-                is_work_set=True,
-            )
-            set_record.save()
+        _generate_set_records(exercise_record, program_exercise)
 
     return JsonResponse(_serialize_workout_record(workout_record))
 
