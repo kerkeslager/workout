@@ -79,6 +79,7 @@ class ExerciseRecord(models.Model):
 
 class SetRecord(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
+    created = models.DateTimeField(auto_now_add=True)
     exercise_record = models.ForeignKey(ExerciseRecord, on_delete=models.CASCADE, related_name='set_records')
     planned_reps = models.IntegerField(null=False)
     completed_reps = models.IntegerField(null=True, default=None)
