@@ -302,12 +302,18 @@ class ExerciseRecord extends Component {
         ),
       ),
       h(
-        SetRecordList,
+        'div',
         {
-          onSetRecordChanged: onSetRecordChanged,
-          setRecords: this.props.exercise.workSets,
-          weight: this.props.exercise.weight,
+          className: 'work-sets',
         },
+        h(
+          SetRecordList,
+          {
+            onSetRecordChanged: onSetRecordChanged,
+            setRecords: this.props.exercise.workSets,
+            weight: this.props.exercise.weight,
+          },
+        ),
       ),
       changeWeightModal,
     );
