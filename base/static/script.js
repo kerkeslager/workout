@@ -352,6 +352,15 @@ class Modal extends Component {
 class Timer extends Component {
   render() {
     let timeText = Math.floor(this.props.time / 60) + ':' + (this.props.time % 60).toString().padStart(2, '0');
+    let text = null;
+
+    if(this.props.time === 0) {
+      text = "What are you waiting for? It's time for the next set!";
+    } else if(this.props.time < 90) {
+      text = 'If the previous set was easy, do the next set now.';
+    } else {
+      text = 'Rest, hydrate, rack up, and mentally prepare for the next set!';
+    }
 
     return h(
       'div',
@@ -359,6 +368,8 @@ class Timer extends Component {
         className: 'timer',
       },
       timeText,
+      ' ',
+      text,
     );
   }
 }
