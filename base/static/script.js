@@ -136,6 +136,7 @@ class ExerciseRecord extends Component {
           if(index != -1) exerciseRecord.warmupSets[index] = setRecord;
         },
       );
+      this.props.onSetRecordChanged(setRecord);
       this.props.onChanged(exerciseRecord);
     };
 
@@ -325,7 +326,7 @@ class Button extends Component {
     return h(
       'div',
       {
-        className: 'button',
+        className: 'button ' + this.props.className,
         onClick: this.props.onClick,
       },
       this.props.text,
@@ -348,16 +349,32 @@ class Modal extends Component {
   }
 }
 
+class Timer extends Component {
+  render() {
+    let timeText = Math.floor(this.props.time / 60) + ':' + (this.props.time % 60).toString().padStart(2, '0');
+
+    return h(
+      'div',
+      {
+        className: 'timer',
+      },
+      timeText,
+    );
+  }
+}
+
 class WorkoutRecord extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       showConfirmFinishIncompleteWorkout: false,
-      workoutRecord: null
+      workoutRecord: null,
+      rest: null,
     };
 
     this.loadWorkoutRecord();
+    this.startRestInterval();
   }
 
   loadWorkoutRecord() {
@@ -377,6 +394,27 @@ class WorkoutRecord extends Component {
     }).then(responseJson => {
       this.setState({ workoutRecord: responseJson });
     });
+  }
+
+  startRestInterval() {
+    setInterval(() => {
+      if(this.state.rest === null || this.state.rest === 0) return;
+      this.setState({ rest: this.state.rest - 1 });
+    }, 1000);
+  }
+
+  setRest(setRecord) {
+    let isWorkoutComplete = this.state.workoutRecord.exercises.every(
+      exerciseRecord => exerciseRecord.workSets.every(
+        setRecord => setRecord.completedReps !== null
+      )
+    );
+
+    if(isWorkoutComplete) {
+      this.setState({ rest: null });
+    } else {
+      this.setState({ rest: 180 });
+    }
   }
 
   finishWorkout() {
@@ -423,6 +461,7 @@ class WorkoutRecord extends Component {
         {
           exercise: exercise,
           onChanged: onExerciseChanged,
+          onSetRecordChanged: this.setRest.bind(this),
         },
       );
     });
@@ -468,6 +507,11 @@ class WorkoutRecord extends Component {
       );
     }
 
+
+    let timer = this.state.rest === null
+      ? null
+      : h(Timer, { time: this.state.rest });
+
     return h(
       'div',
       {},
@@ -481,10 +525,12 @@ class WorkoutRecord extends Component {
       h(
         Button,
         {
+          className: 'finish-workout',
           onClick: handleClick,
           text: 'Finish',
         },
       ),
+      timer,
     );
   }
 }

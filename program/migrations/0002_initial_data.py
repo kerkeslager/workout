@@ -82,7 +82,7 @@ def create_data(apps, schema_editor):
     program_exercise = ProgramExercise(
         workout=workout,
         exercise=exercise,
-        start_weight=45,
+        start_weight=25,
         sets=5,
         reps=5,
         progression='LINR',

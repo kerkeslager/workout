@@ -265,3 +265,28 @@ input[type=number] {
   padding: 0;
   text-align: center;
 }
+
+.button.finish-workout {
+  margin-bottom: 1rem;
+}
+
+.timer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+
+  border-top: 2px solid black;
+
+  width: 100%;
+  max-width: 33rem;
+  padding: 0.8rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .timer {
+    color: #dddddd;
+    border-top-color: #dddddd;
+    background-color: #111111;
+  }
+}
