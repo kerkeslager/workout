@@ -127,8 +127,7 @@ input[type=submit] {
   margin-left: 0;
 }
 
-input[type=number],
-input[type=text]{
+input[type=number] {
   font-size: 16pt;
 }
 

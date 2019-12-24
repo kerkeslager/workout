@@ -54,11 +54,21 @@ class ProgramWorkout(models.Model):
         ).order_by('-created').first()
 
 class ProgramExercise(models.Model):
+    CONSTANT = 'CNST'
+    LINEAR = 'LINR'
+
+    PROGRESSION_CHOICES = (
+        (CONSTANT, 'Constant'),
+        (LINEAR, 'Linear'),
+    )
+
     workout = models.ForeignKey('ProgramWorkout', models.CASCADE, related_name='program_exercises')
     exercise = models.ForeignKey('exercise.Exercise', models.CASCADE)
     start_weight = models.IntegerField(null=False)
     sets = models.IntegerField(null=False)
     reps = models.IntegerField(null=False)
+    progression = models.CharField(max_length=4, choices=PROGRESSION_CHOICES)
+    progression_linear_increment = models.IntegerField(null=False)
 
     def __str__(self):
         return self.exercise.name

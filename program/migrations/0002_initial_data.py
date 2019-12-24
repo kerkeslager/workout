@@ -22,6 +22,8 @@ def create_data(apps, schema_editor):
         start_weight=45,
         sets=5,
         reps=5,
+        progression='LINR',
+        progression_linear_increment=5,
     )
     program_exercise.save()
 
@@ -35,6 +37,8 @@ def create_data(apps, schema_editor):
         start_weight=45,
         sets=5,
         reps=5,
+        progression='LINR',
+        progression_linear_increment=5,
     )
     program_exercise.save()
 
@@ -48,6 +52,8 @@ def create_data(apps, schema_editor):
         start_weight=45,
         sets=5,
         reps=3,
+        progression='LINR',
+        progression_linear_increment=5,
     )
     program_exercise.save()
 
@@ -64,6 +70,8 @@ def create_data(apps, schema_editor):
         start_weight=45,
         sets=5,
         reps=5,
+        progression='LINR',
+        progression_linear_increment=5,
     )
     program_exercise.save()
 
@@ -77,6 +85,8 @@ def create_data(apps, schema_editor):
         start_weight=45,
         sets=5,
         reps=5,
+        progression='LINR',
+        progression_linear_increment=5,
     )
     program_exercise.save()
 
@@ -87,9 +97,11 @@ def create_data(apps, schema_editor):
     program_exercise = ProgramExercise(
         workout=workout,
         exercise=exercise,
-        start_weight=45,
+        start_weight=65,
         sets=5,
         reps=5,
+        progression='LINR',
+        progression_linear_increment=5,
     )
     program_exercise.save()
 
@@ -103,9 +115,11 @@ def create_data(apps, schema_editor):
     program_exercise = ProgramExercise(
         workout=workout,
         exercise=exercise,
-        start_weight=45,
+        start_weight=95,
         sets=1,
         reps=5,
+        progression='LINR',
+        progression_linear_increment=10,
     )
     program_exercise.save()
 
@@ -119,6 +133,8 @@ def create_data(apps, schema_editor):
         start_weight=45,
         sets=5,
         reps=5,
+        progression='LINR',
+        progression_linear_increment=5,
     )
     program_exercise.save()
 
@@ -132,6 +148,8 @@ def create_data(apps, schema_editor):
         start_weight=45,
         sets=5,
         reps=5,
+        progression='LINR',
+        progression_linear_increment=5,
     )
     program_exercise.save()
 
