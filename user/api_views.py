@@ -14,6 +14,7 @@ def _serialize_set_record(set_record):
         'plannedReps': set_record.planned_reps,
         'completedReps': set_record.completed_reps,
         'weight': set_record.weight,
+        'setType': 'work' if set_record.is_work_set else 'warmup',
     }
 
 def _serialize_exercise_record(exercise_record):
