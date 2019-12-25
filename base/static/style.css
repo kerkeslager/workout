@@ -270,7 +270,7 @@ input[type=number] {
   margin-bottom: 1rem;
 }
 
-.timer {
+.rest-timer {
   position: fixed;
   bottom: 0;
   left: 50%;

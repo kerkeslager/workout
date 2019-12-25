@@ -349,7 +349,7 @@ class Modal extends Component {
   }
 }
 
-class Timer extends Component {
+class RestTimer extends Component {
   render() {
     let timeText = Math.floor(this.props.time / 60) + ':' + (this.props.time % 60).toString().padStart(2, '0');
     let text = null;
@@ -365,7 +365,7 @@ class Timer extends Component {
     return h(
       'div',
       {
-        className: 'timer',
+        className: 'rest-timer',
       },
       timeText,
       ' ',
@@ -519,9 +519,9 @@ class WorkoutRecord extends Component {
     }
 
 
-    let timer = this.state.rest === null
+    let restTimer = this.state.rest === null
       ? null
-      : h(Timer, { time: this.state.rest });
+      : h(RestTimer, { time: this.state.rest });
 
     return h(
       'div',
@@ -541,7 +541,7 @@ class WorkoutRecord extends Component {
           text: 'Finish',
         },
       ),
-      timer,
+      restTimer,
     );
   }
 }
