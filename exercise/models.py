@@ -18,6 +18,7 @@ class Exercise(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=256)
     resistance = models.CharField(max_length=2, choices=RESISTANCE_CHOICES)
+    description = models.TextField()
 
     def __str__(self):
         return self.name

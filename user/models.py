@@ -17,7 +17,7 @@ class UserProfile(models.Model):
     def exercises(self):
         return exercise_models.Exercise.objects.filter(
             exercise_records__user=self.user,
-            exercise_records__set_records__completed_reps__gt=0,
+            exercise_records__set_records__reps_completed__gt=0,
         ).distinct()
 
     def get_recommended_program_workouts(self):
@@ -71,21 +71,37 @@ class ExerciseRecord(models.Model):
 
     @property
     def warmup_set_records(self):
-        return self.set_records.filter(is_work_set=False)
+        return self.set_records.filter(warmup_or_work=SetRecord.WARMUP)
 
     @property
     def work_set_records(self):
-        return self.set_records.filter(is_work_set=True)
+        return self.set_records.filter(warmup_or_work=SetRecord.WORK)
 
 class SetRecord(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True)
     exercise_record = models.ForeignKey(ExerciseRecord, on_delete=models.CASCADE, related_name='set_records')
-    planned_reps = models.IntegerField(null=False)
-    completed_reps = models.IntegerField(null=True, default=None)
-    weight=models.IntegerField(null=False)
-    is_work_set = models.BooleanField(null=False)
+    weight = models.IntegerField()
+
+    WARMUP = 'warmup'
+    WORK = 'work'
+    WARMUP_OR_WORK_CHOICES = (
+        (WARMUP, 'Warmup'),
+        (WORK, 'Work'),
+    )
+    warmup_or_work = models.CharField(max_length=6, choices=WARMUP_OR_WORK_CHOICES)
+
+    REPS = 'reps'
+    TIME = 'time'
+    SUCCESS_CONDITION_CHOICES = (
+        (REPS, 'Reps'),
+        (TIME, 'Time'),
+    )
+    success_condition = models.CharField(max_length=4, choices=SUCCESS_CONDITION_CHOICES)
+
+    reps_planned = models.IntegerField()
+    reps_completed = models.IntegerField(null=True, default=None)
 
     @property
     def succeeded(self):
-        return self.planned_reps == self.completed_reps
+        return self.reps_planned == self.reps_completed

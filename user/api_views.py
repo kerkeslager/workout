@@ -11,10 +11,10 @@ from program import models as program_models
 def _serialize_set_record(set_record):
     return {
         'id': set_record.identifier,
-        'plannedReps': set_record.planned_reps,
-        'completedReps': set_record.completed_reps,
+        'plannedReps': set_record.reps_planned,
+        'completedReps': set_record.reps_completed,
         'weight': set_record.weight,
-        'setType': 'work' if set_record.is_work_set else 'warmup',
+        'warmupOrWork': set_record.warmup_or_work,
     }
 
 def _serialize_exercise_record(exercise_record):
@@ -108,9 +108,9 @@ def _generate_set_records(exercise_record, program_exercise=None):
     if planned_weight * 75 / 100 > program_exercise.start_weight:
         set_record = models.SetRecord(
             exercise_record=exercise_record,
-            planned_reps=program_exercise.reps,
+            reps_planned=program_exercise.reps,
             weight=program_exercise.start_weight,
-            is_work_set=False,
+            warmup_or_work=models.SetRecord.WARMUP,
         )
         set_record.save()
 
@@ -120,18 +120,18 @@ def _generate_set_records(exercise_record, program_exercise=None):
 
             set_record = models.SetRecord(
                 exercise_record=exercise_record,
-                planned_reps=program_exercise.reps,
+                reps_planned=program_exercise.reps,
                 weight=weight,
-                is_work_set=False,
+                warmup_or_work=models.SetRecord.WARMUP,
             )
             set_record.save()
 
     for s in range(program_exercise.sets):
         set_record = models.SetRecord(
             exercise_record=exercise_record,
-            planned_reps=program_exercise.reps,
+            reps_planned=program_exercise.reps,
             weight=exercise_record.planned_weight,
-            is_work_set=True,
+            warmup_or_work=models.SetRecord.WORK,
         )
         set_record.save()
 
@@ -250,10 +250,10 @@ def update_set_record(request):
     for key in payload.keys():
         if key == 'completedReps':
             if payload['completedReps'] is None:
-                updates['completed_reps'] = None
+                updates['reps_completed'] = None
 
             else:
-                updates['completed_reps'] = int(payload['completedReps'])
+                updates['reps_completed'] = int(payload['completedReps'])
 
         else:
             return JsonResponse({

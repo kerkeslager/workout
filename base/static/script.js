@@ -350,8 +350,25 @@ class Modal extends Component {
 }
 
 class RestTimer extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      time: this.props.time,
+    };
+
+    this.startRestInterval();
+  }
+
+  startRestInterval() {
+    setInterval(() => {
+      if(this.state.time === null || this.state.time === 0) return;
+      this.setState({ time: this.state.time - 1 });
+    }, 1000);
+  }
+
   render() {
-    let timeText = Math.floor(this.props.time / 60) + ':' + (this.props.time % 60).toString().padStart(2, '0');
+    let timeText = Math.floor(this.state.time / 60) + ':' + (this.state.time % 60).toString().padStart(2, '0');
     let text = null;
 
     if(this.props.time === 0) {
@@ -385,7 +402,6 @@ class WorkoutRecord extends Component {
     };
 
     this.loadWorkoutRecord();
-    this.startRestInterval();
   }
 
   loadWorkoutRecord() {
@@ -407,12 +423,6 @@ class WorkoutRecord extends Component {
     });
   }
 
-  startRestInterval() {
-    setInterval(() => {
-      if(this.state.rest === null || this.state.rest === 0) return;
-      this.setState({ rest: this.state.rest - 1 });
-    }, 1000);
-  }
 
   setRest(setRecord) {
     let isWorkoutComplete = this.state.workoutRecord.exercises.every(

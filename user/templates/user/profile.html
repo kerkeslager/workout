@@ -32,15 +32,15 @@
     {% for exercise_record in workout_record.exercise_records.all %}
       <h4>{{ exercise_record.exercise.name }}</h4>
       {% for set_record in exercise_record.set_records.all %}
-        {% if set_record.completed_reps is None %}
+        {% if set_record.reps_completed is None %}
           <p>
             Skipped set of
-            {{ set_record.planned_reps }}
+            {{ set_record.reps_planned }}
             at {{ exercise_record.planned_weight }}lbs
           </p>
         {% else %}
           <p>
-            {{ set_record.completed_reps }} / {{ set_record.planned_reps }}
+            {{ set_record.reps_completed }} / {{ set_record.reps_planned }}
             at {{ exercise_record.planned_weight }}lbs
           </p>
         {% endif %}

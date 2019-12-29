@@ -21,7 +21,8 @@ body {
   max-width: 30rem;
 
   font-size: 14pt;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Zilla Slab', Verdana, Geneva, sans-serif;
+  font-weight: light;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -270,6 +271,11 @@ input[type=number] {
   margin-bottom: 1rem;
 }
 
+/* This is for when the timer is showing. */
+.button.finish-workout:not(:last-child) {
+  margin-bottom: 5rem;
+}
+
 .rest-timer {
   position: fixed;
   bottom: 0;
@@ -284,7 +290,7 @@ input[type=number] {
 }
 
 @media (prefers-color-scheme: dark) {
-  .timer {
+  .rest-timer {
     color: #dddddd;
     border-top-color: #dddddd;
     background-color: #111111;

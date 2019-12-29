@@ -5,6 +5,7 @@ from django.db import models
 class Program(models.Model):
     identifier = models.UUIDField(default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=256, null=False, blank=False)
+    description = models.TextField()
 
     def __str__(self):
         return self.name
@@ -69,6 +70,7 @@ class ProgramExercise(models.Model):
     reps = models.IntegerField(null=False)
     progression = models.CharField(max_length=4, choices=PROGRESSION_CHOICES)
     progression_linear_increment = models.IntegerField(null=False)
+    description = models.TextField()
 
     def __str__(self):
         return self.exercise.name
